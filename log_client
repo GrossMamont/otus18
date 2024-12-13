@@ -1,0 +1,52 @@
+[vagrant@client ~]$ nsupdate -k /etc/named.zonetransfer.key
+> server 192.168.56.10            
+> zone ddns.lab
+> update add www.ddns.lab. 60 A 192.168.56.15
+> send
+update failed: SERVFAIL
+> quit
+[vagrant@client ~]$ sudo -i
+[root@client ~]# cat /var/log/audit/audit.log | audit2why
+type=AVC msg=audit(1733845545.093:719): avc:  denied  { dac_read_search } for  pid=3507 comm="20-chrony-dhcp" capability=2  scontext=system_u:system_r:NetworkManager_dispatcher_chronyc_t:s0 tcontext=system_u:system_r:NetworkManager_dispatcher_chronyc_t:s0 tclass=capability permissive=0
+
+	Was caused by:
+		Missing type enforcement (TE) allow rule.
+
+		You can use audit2allow to generate a loadable module to allow this access.
+
+type=AVC msg=audit(1733845545.093:719): avc:  denied  { dac_override } for  pid=3507 comm="20-chrony-dhcp" capability=1  scontext=system_u:system_r:NetworkManager_dispatcher_chronyc_t:s0 tcontext=system_u:system_r:NetworkManager_dispatcher_chronyc_t:s0 tclass=capability permissive=0
+
+	Was caused by:
+		Missing type enforcement (TE) allow rule.
+
+		You can use audit2allow to generate a loadable module to allow this access.
+
+[root@client ~]# nsupdate -k /etc/named.zonetransfer.key
+> server 192.168.56.10
+> zone ddns.lab
+> update add www.ddns.lab. 60 A 192.168.56.15
+> send
+> quit
+[root@client ~]# dig www.ddns.lab
+
+; <<>> DiG 9.16.23-RH <<>> www.ddns.lab
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 27927
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 1232
+; COOKIE: 86bac02a9eebe6a101000000675871b67d1fa9240da8dee1 (good)
+;; QUESTION SECTION:
+;www.ddns.lab.			IN	A
+
+;; ANSWER SECTION:
+www.ddns.lab.		60	IN	A	192.168.56.15
+
+;; Query time: 1 msec
+;; SERVER: 192.168.56.10#53(192.168.56.10)
+;; WHEN: Tue Dec 10 16:52:06 UTC 2024
+;; MSG SIZE  rcvd: 85
+
+[root@client ~]# 
